@@ -1,3 +1,5 @@
+import time
+
 class Event:
     def __init__(self, event_type):
         self.event_type = event_type
@@ -12,9 +14,15 @@ class ChecksumErrorEvent(Event):
         super().__init__("cksum_err")
         self.frame = frame
 
-class TimeoutEvent(Event):
-    def __init__(self):
-        super().__init__("timeout")
+class TimeoutEvent:
+    def __init__(self, duration):
+        self.duration = duration  # Duración en segundos
+        self.start_time = time.time()  # Tiempo de inicio
+    
+    def is_expired(self):
+        current_time = time.time()
+        elapsed_time = current_time - self.start_time
+        return elapsed_time >= self.duration
 
 class AckTimeoutEvent(Event):
     def __init__(self):
