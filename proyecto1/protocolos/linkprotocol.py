@@ -3,7 +3,8 @@ from modelos.frame import Frame
 from capas.physicallayer import PhysicalLayer
 
 class LinkProtocol:
-    def __init__(self):
+    def __init__(self, client):
+        self.client = client
         self.sequence_number = 0
         self.timeout_duration = 5  # Duración del temporizador en segundos
         self.timeout_event = None  # Evento de timeout
@@ -11,15 +12,16 @@ class LinkProtocol:
         self.physical_layer = PhysicalLayer(0.1)  # Asigna la capa física
     
     def send(self, packet):
-        print(f"Enviando paquete: {packet}")
-        # Envía el paquete a través del canal de comunicación
-        frame = Frame("data", self.sequence_number, 0, packet)
-        # Simular la transmisión del frame a través de la capa física
-        self.physical_layer.send_frame(frame)
-        self.packet = packet  # Guarda el último paquete enviado
-        # Configura un temporizador (timeout) para esperar la confirmación
-        self.timeout_event = TimeoutEvent(self.timeout_duration)
-        self.schedule_event(self.timeout_event, self.timeout_duration)
+        if self.client == "A" or self.client == "B":
+            print(f"Enviando paquete: {packet}")
+            # Envía el paquete a través del canal de comunicación
+            frame = Frame("data", self.sequence_number, 0, packet)
+            # Simular la transmisión del frame a través de la capa física
+            print(f"Enviando frame: {frame}")
+            return frame
+            # Configura un temporizador (timeout) para esperar la confirmación
+            #self.timeout_event = TimeoutEvent(self.timeout_duration)
+            #self.schedule_event(self.timeout_event, self.timeout_duration)
     
     def receive(self, frame):
         print(f"Recibiendo frame: {frame}")
@@ -32,9 +34,9 @@ class LinkProtocol:
             packet = frame.packet_data
             # Procesa el paquete
             # Envía un ACK
-            ack_frame = Frame("ack", frame.sequence_number, 0, None)
+            ack_frame = Frame("ack", frame.sequence_number, 0, packet)
             # Simular el envío del ACK a través de la capa física
-            self.physical_layer.send_frame(ack_frame)
+            return ack_frame
     
     def handle_timeout(self):
         if self.timeout_event and self.timeout_event.is_expired():
