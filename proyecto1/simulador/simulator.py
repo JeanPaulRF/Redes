@@ -1,4 +1,5 @@
 import time
+from simulador.eventos import FrameArrivalEvent
 
 class Simulator:
     def __init__(self, link_protocol, network_layer, physical_layer):
@@ -29,6 +30,7 @@ class Simulator:
                     response_frame = self.link_protocol.receive(frame)
 
                     if response_frame:
+
                         # Enviar la respuesta a través de la capa física
                         self.physical_layer.send_frame(response_frame)
 

@@ -1,14 +1,18 @@
 import time
-from protocolos.utopiaprotocol import UtopiaProtocol
+import threading
 from protocolos.linkprotocol import LinkProtocol
 from capas.networklayer import NetworkLayer
 from capas.physicallayer import PhysicalLayer
 from simulador.simulator import Simulator
-from modelos.packet import Packet
-import threading
+
+# Mantén un registro de todos los hilos de la simulación
+simulator_threads = []
 
 # Variable de control para pausar la simulación
 pausa_simulacion = False
+
+# Variable de control para finalizar la simulación
+finalizar_simulacion = False
 
 # Crea instancias de capa de red
 network_layer_A = NetworkLayer()
@@ -18,7 +22,7 @@ network_layer_B = NetworkLayer()
 link_protocol_A = None
 link_protocol_B = None
 
-# Crea instancias de capa fisica
+# Crea instancias de capa física
 physical_layer_A = PhysicalLayer(error_rate=0.1)
 physical_layer_B = PhysicalLayer(error_rate=0.1)
 
@@ -27,18 +31,26 @@ physical_layer_A.set_receptor(physical_layer_B)
 physical_layer_B.set_receptor(physical_layer_A)
 
 def menu_pausa(simulator_A, simulator_B):
-    global pausa_simulacion
-    while True:
-        opcion = input("\nPresiona 'p' para pausar la simulación o 'r' para reanudar: \n\n")
-        time.sleep(4)
+    global pausa_simulacion, finalizar_simulacion
+    while not finalizar_simulacion:
+        opcion = input("\nPresiona 'p' para pausar la simulación, 'r' para reanudar o 't' para terminar: \n\n")
         if opcion.lower() == 'p':
             pausa_simulacion = True
             simulator_A.pause = pausa_simulacion
             simulator_B.pause = pausa_simulacion
+            print("Eventos cliente A: \n")
+            simulator_A.link_protocol.print_events()
+            print("\nEventos cliente B: \n")
+            simulator_B.link_protocol.print_events()
         elif opcion.lower() == 'r':
             pausa_simulacion = False
             simulator_A.pause = pausa_simulacion
             simulator_B.pause = pausa_simulacion
+        elif opcion.lower() == 't':
+            finalizar_simulacion = True
+            simulator_A.running = False
+            simulator_B.running = False
+            break
         else:
             print("\nOpción no válida\n")
 
@@ -46,7 +58,7 @@ def menu():
     global link_protocol_A, link_protocol_B
     while True:
         print("\n===========================================================")
-        print("Menu de Procolos de Enlace\n")
+        print("Menu de Protocolos de Enlace\n")
         print("0. Link")
         print("1. Utopia")
         print("2. Stop and Wait")
@@ -55,7 +67,7 @@ def menu():
         print("5. Go-Back-N")
         print("6. Selective-Repeat")
 
-        opcion = input("\nIngrese una opcion: ")
+        opcion = input("\nIngrese una opción: ")
         if opcion == "0":
             # Link
             link_protocol_A = LinkProtocol('A')
@@ -82,13 +94,13 @@ def menu():
             # Selective-Repeat
             break
         else:
-            print("\nOpcion invalida\n")
+            print("\nOpción inválida\n")
 
 def simulation():
     global network_layer_A, link_protocol_A, physical_layer_A, network_layer_B, link_protocol_B, physical_layer_B
     menu()
 
-    print("\nSimulacion Iniciada\n")
+    print("\nSimulación Iniciada\n")
     time.sleep(1)
 
     # Inicializa el simulador con los componentes para A y B
@@ -102,8 +114,17 @@ def simulation():
     # Crear los threads e iniciarlos
     thread_A = threading.Thread(target=simulator_A.run_simulation)
     thread_B = threading.Thread(target=simulator_B.run_simulation)
+    simulator_threads.append(thread_A)
+    simulator_threads.append(thread_B)
     thread_A.start()
     thread_B.start()
+
+    # Espera a que se finalice la simulación
+    while not finalizar_simulacion:
+        pass
+    
+    for thread in simulator_threads:
+            thread.join()
 
 if __name__ == "__main__":
     # Inicializa la simulación
