@@ -8,4 +8,5 @@ class NetworkLayer:
         return "Mensaje {" + str(self.sents-1) + "} del cliente " + client
     
     def receive_packet(self, packet):
+        print(f"Recibiendo paquete: {packet}")
         self.packets.append(packet)

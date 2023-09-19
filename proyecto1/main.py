@@ -60,6 +60,8 @@ def menu():
             # Link
             link_protocol_A = LinkProtocol('A')
             link_protocol_B = LinkProtocol('B')
+            link_protocol_A.set_physical_layer(physical_layer_A)
+            link_protocol_B.set_physical_layer(physical_layer_B)
             break
         if opcion == "1":
             # Utopia
