@@ -17,6 +17,8 @@ class PhysicalLayer:
     def receive_frame(self, frame):
         if random.random() > self.error_rate:
             self.frames.append(frame)
+            return True
+        return False
 
     def send_frame(self, frame):
-        self.receptor.receive_frame(frame)
+        return self.receptor.receive_frame(frame)

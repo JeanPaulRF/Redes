@@ -1,6 +1,5 @@
-from simulador.eventos import FrameArrivalEvent, TimeoutEvent
+from simulador.eventos import FrameArrivalEvent, TimeoutEvent, AckTimeoutEvent, NetworkLayerReadyEvent, ChecksumErrorEvent
 from modelos.frame import Frame
-from simulador.eventos import Event, FrameArrivalEvent, TimeoutEvent
 from queue import Queue
 
 class LinkProtocol:
@@ -22,7 +21,12 @@ class LinkProtocol:
                 print("Evento: FrameArrivalEvent Packet: " + event.frame.packet_data)
             elif isinstance(event, TimeoutEvent):
                 print("Evento: TimeoutEvent")
-            # Agrega más condiciones para otros tipos de eventos si es necesario.
+            elif isinstance(event, AckTimeoutEvent):
+                print("Evento: AckTimeoutEvent")
+            elif isinstance(event, NetworkLayerReadyEvent):
+                print("Evento: NetworkLayerReadyEvent Packet: " + event.packet)
+            elif isinstance(event, ChecksumErrorEvent):
+                print("Evento: ChecksumErrorEvent Packet: " + event.frame.packet_data)
 
     
     def send(self, packet):
@@ -42,6 +46,8 @@ class LinkProtocol:
     def receive(self, frame):
         print(f"Recibiendo frame: Tipo: {frame.frame_type} - Número de secuencia: {frame.sequence_number} - Número de ACK: {frame.ack_number} - Datos: {frame.packet_data}")
         if frame.frame_type == "ack" and frame.ack_number == self.sequence_number:
+            # Quita el evento de timeout de la cola de eventos
+            self.cancel_event()
             # Se recibió un ACK válido, se confirma la recepción
             frame2 = Frame("data", self.sequence_number - 1, 0, self.packet)
             # Simular el envío del ACK a través de la capa física
@@ -76,7 +82,7 @@ class LinkProtocol:
 
     def cancel_event(self):
         try:
-            event = self.events.get_nowait()  # Extrae el evento de la cola si está disponible
+            event = self.events.get()  # Extrae el evento de la cola si está disponible
         except Queue.Empty:
             pass  # La cola está vacía, no hay eventos para cancelar
 

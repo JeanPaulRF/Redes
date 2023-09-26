@@ -1,5 +1,5 @@
 import time
-from simulador.eventos import FrameArrivalEvent
+from simulador.eventos import NetworkLayerReadyEvent, ChecksumErrorEvent
 
 class Simulator:
     def __init__(self, link_protocol, network_layer, physical_layer):
@@ -15,7 +15,10 @@ class Simulator:
             if not self.pause:
                 # Enviar
                 # Obtener un paquete de la capa de red
-                packet = self.network_layer.send_packet(self.client)         
+                packet = self.network_layer.send_packet(self.client)  
+
+                new_event = NetworkLayerReadyEvent(packet)
+                self.link_protocol.schedule_event(new_event)       
 
                 if packet:
                     # Enviar el paquete al protocolo de enlace
@@ -32,7 +35,12 @@ class Simulator:
                     if response_frame:
 
                         # Enviar la respuesta a través de la capa física
-                        self.physical_layer.send_frame(response_frame)
+                        result = self.physical_layer.send_frame(response_frame)
+
+                        # Si el frame no se envió correctamente, se genera un evento de errort
+                        if not result:
+                            new_event = ChecksumErrorEvent(response_frame)
+                            self.link_protocol.schedule_event(new_event)
 
             # Simular una espera antes de la próxima iteración
             time.sleep(1)
