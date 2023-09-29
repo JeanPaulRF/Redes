@@ -3,6 +3,9 @@ import threading
 from protocolos.linkprotocol import LinkProtocol
 from capas.networklayer import NetworkLayer
 from capas.physicallayer import PhysicalLayer
+from protocolos.utopiaprotocol import UtopiaProtocol
+from protocolos.stopandwaitprotocol import StopAndWait
+from protocolos.parprotocol import ParProtocol
 from simulador.simulator import Simulator
 
 # Mantén un registro de todos los hilos de la simulación
@@ -77,12 +80,24 @@ def menu():
             break
         if opcion == "1":
             # Utopia
+            link_protocol_A = UtopiaProtocol('A')
+            link_protocol_B = UtopiaProtocol('B')
+            link_protocol_A.set_physical_layer(physical_layer_A)
+            link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "2":
             # Stop and Wait
+            link_protocol_A = StopAndWait('A')
+            link_protocol_B = StopAndWait('B')
+            link_protocol_A.set_physical_layer(physical_layer_A)
+            link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "3":
             # PAR
+            link_protocol_A = ParProtocol('A')
+            link_protocol_B = ParProtocol('B')
+            link_protocol_A.set_physical_layer(physical_layer_A)
+            link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "4":
             # Sliding Window de 1 bit
