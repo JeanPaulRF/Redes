@@ -32,20 +32,12 @@ class ParProtocol:
 
     
     def send(self, packet):
-        if self.client == "A" or self.client == "B":
+        if self.client == "A":
             print(f"Enviando paquete: {packet}")
             # Envía el paquete a través del canal de comunicación
             frame = Frame("data", self.sequence_number, 0, packet)
             # Simular la transmisión del frame a través de la capa física
             print(f"Enviando frame: Tipo: {frame.frame_type} - Número de secuencia: {frame.sequence_number} - Número de ACK: {frame.ack_number} - Datos: {frame.packet_data}")
-            
-            # El ACK se enviará después de un retardo aleatorio simulando el tiempo de procesamiento de B.
-            
-            # Simular el retardo de procesamiento en B 
-            processing_delay = random.randint(1, 5)  # Cambiar 5 por el valor máximo deseado
-            time.sleep(processing_delay)
-            
-            # Simular la transmisión del frame a través de la capa física después del retardo
             self.physical_layer.send_frame(frame)
             self.packet = packet
             # Configura un temporizador (timeout) para esperar la confirmación
@@ -55,22 +47,14 @@ class ParProtocol:
 
     def receive(self, frame):
         print(f"Recibiendo frame: Tipo: {frame.frame_type} - Número de secuencia: {frame.sequence_number} - Número de ACK: {frame.ack_number} - Datos: {frame.packet_data}")
-        
-        if frame.frame_type == "ack" and frame.ack_number == self.sequence_number:
+        if frame.frame_type == "ack" and frame.ack_number == self.sequence_number and self.client == "A":
             # Quita el evento de timeout de la cola de eventos
             self.cancel_event()
-            
-            # No se crea un nuevo frame para enviar ACK de datos.
-            
-            # Actualizar el número de secuencia
-            self.sequence_number += 1
-            
-            # Simular el envío del ACK inmediatamente a través de la capa física
-            ack_frame = Frame("ack", frame.sequence_number, 0, self.packet)
-            self.physical_layer.send_frame(ack_frame)
-            
-            return None  # No se devuelve ningún frame de datos
-        elif frame.frame_type == "data":
+            # Se recibió un ACK válido, se confirma la recepción
+            frame2 = Frame("data", self.sequence_number - 1, 0, self.packet)
+            # Simular el envío del ACK a través de la capa física
+            return frame2
+        elif frame.frame_type == "data" and self.client == "B":
             # Se recibió un frame de datos, se procesa y envía un ACK
             packet = frame.packet_data
 
@@ -79,13 +63,10 @@ class ParProtocol:
             # Agregar el evento a la cola de eventos del protocolo de enlace
             self.schedule_event(frame_arrival_event)
             # Procesa el paquete
-
             # Envía un ACK
             ack_frame = Frame("ack", frame.sequence_number, 0, packet)
             # Simular el envío del ACK a través de la capa física
-            self.physical_layer.send_frame(ack_frame)
-            
-            return None  # No se devuelve ningún frame de datos
+            return ack_frame
 
     def handle_timeout(self):
         print("Timeout expirado. Retransmitiendo...")

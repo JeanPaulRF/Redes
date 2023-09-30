@@ -28,7 +28,7 @@ class Simulator:
                 # Obtener un frame de la capa física
                 frame = self.physical_layer.get_frame()
                 if frame:
-
+                    
                     # Recibir el frame en el protocolo de enlace
                     response_frame = self.link_protocol.receive(frame)
 

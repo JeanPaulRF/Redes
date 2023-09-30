@@ -14,6 +14,7 @@ class StopAndWait:
 
     def set_physical_layer(self, physical_layer):
         self.physical_layer = physical_layer
+        self.physical_layer.error_rate = 0
 
     def print_events(self):
         for event in self.events.queue:
@@ -32,35 +33,39 @@ class StopAndWait:
     def send(self, packet):
         if self.client == "A":
             print(f"Enviando paquete: {packet}")
-            
-            frame = Frame("data", self.sequence_number, 0, packet)# Crea un frame de datos con el número de secuencia actual
-            
-            print(f"Enviando frame: Tipo: {frame.frame_type} - Número de secuencia: {frame.sequence_number} - Número de ACK: {frame.ack_number} - Datos: {frame.packet_data}")# Imprime información sobre el frame de datos que se envía
-            
-           
-            self.physical_layer.send_frame(frame)#Envía el frame de datos a través de la capa física
-            
-            timeout_event = TimeoutEvent(self.timeout_duration) #Configura un temporizador (timeout) para esperar la confirmación
-            self.schedule_event(timeout_event)# Agrega el evento de timeout a la cola de eventos del protocolo de enlace
-            self.waiting_for_ack = True#Marca que estamos esperando un ACK
+            # Envía el paquete a través del canal de comunicación
+            frame = Frame("data", self.sequence_number, 0, packet)
+            # Simular la transmisión del frame a través de la capa física
+            print(f"Enviando frame: Tipo: {frame.frame_type} - Número de secuencia: {frame.sequence_number} - Número de ACK: {frame.ack_number} - Datos: {frame.packet_data}")
+            self.physical_layer.send_frame(frame)
+            self.packet = packet
+            # Configura un temporizador (timeout) para esperar la confirmación
+            timeout_event = TimeoutEvent(self.timeout_duration)
+            # Agregar el evento de timeout a la cola de eventos del protocolo de enlace
+            self.schedule_event(timeout_event)
 
     def receive(self, frame):
-        if self.client == "B":
-            if frame.frame_type == "data" and frame.sequence_number == self.sequence_number:
-                #Imprime información sobre el frame de datos recibido
-                print(f"Recibiendo frame: Tipo: {frame.frame_type} - Número de secuencia: {frame.sequence_number} - Número de ACK: {frame.ack_number} - Datos: {frame.packet_data}")
-                
-                packet = frame.packet_data#Extrae los datos del paquete contenido en el frame de datos
-                
-                ack_frame = Frame("ack", frame.sequence_number, 0, packet)#Crea un frame de ACK con el mismo número de secuencia y envía el ACK
-                #Imprime información sobre el ACK que se envía
-                print(f"Enviando ACK: Tipo: {ack_frame.frame_type} - Número de secuencia: {ack_frame.sequence_number} - Número de ACK: {ack_frame.ack_number}")
-                self.physical_layer.send_frame(ack_frame)
-                
-                self.sequence_number += 1#Incrementa el número de secuencia esperado para el siguiente paquete
+        print(f"Recibiendo frame: Tipo: {frame.frame_type} - Número de secuencia: {frame.sequence_number} - Número de ACK: {frame.ack_number} - Datos: {frame.packet_data}")
+        if frame.frame_type == "ack" and frame.ack_number == self.sequence_number and self.client == "A":
+            # Quita el evento de timeout de la cola de eventos
+            self.cancel_event()
+            # Se recibió un ACK válido, se confirma la recepción
+            frame2 = Frame("data", self.sequence_number - 1, 0, self.packet)
+            # Simular el envío del ACK a través de la capa física
+            return frame2
+        elif frame.frame_type == "data" and self.client == "B":
+            # Se recibió un frame de datos, se procesa y envía un ACK
+            packet = frame.packet_data
 
-                # Marca que ya no estamos esperando un ACK
-                self.waiting_for_ack = False
+            # Crear un evento FrameArrivalEvent para señalar la llegada del paquete
+            frame_arrival_event = FrameArrivalEvent(frame)
+            # Agregar el evento a la cola de eventos del protocolo de enlace
+            self.schedule_event(frame_arrival_event)
+            # Procesa el paquete
+            # Envía un ACK
+            ack_frame = Frame("ack", frame.sequence_number, 0, packet)
+            # Simular el envío del ACK a través de la capa física
+            return ack_frame
 
 
     def handle_timeout(self):

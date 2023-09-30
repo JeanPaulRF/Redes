@@ -26,8 +26,8 @@ link_protocol_A = None
 link_protocol_B = None
 
 # Crea instancias de capa física
-physical_layer_A = PhysicalLayer(error_rate=0.1)
-physical_layer_B = PhysicalLayer(error_rate=0.1)
+physical_layer_A = PhysicalLayer(error_rate=0.2)
+physical_layer_B = PhysicalLayer(error_rate=0.2)
 
 # Conecta los componentes entre sí
 physical_layer_A.set_receptor(physical_layer_B)
@@ -62,7 +62,6 @@ def menu():
     while True:
         print("\n===========================================================")
         print("Menu de Protocolos de Enlace\n")
-        print("0. Link")
         print("1. Utopia")
         print("2. Stop and Wait")
         print("3. PAR")
@@ -72,13 +71,13 @@ def menu():
 
         opcion = input("\nIngrese una opción: ")
         if opcion == "0":
-            # Link
+            # Utopia
             link_protocol_A = LinkProtocol('A')
             link_protocol_B = LinkProtocol('B')
             link_protocol_A.set_physical_layer(physical_layer_A)
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
-        if opcion == "1":
+        elif opcion == "1":
             # Utopia
             link_protocol_A = UtopiaProtocol('A')
             link_protocol_B = UtopiaProtocol('B')
