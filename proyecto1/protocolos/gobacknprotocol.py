@@ -69,11 +69,11 @@ class GoBackNProtocol:
 
     def receive(self, frame):
         if self.receiveConfirmation:
-            # Ventana de 1, no recibe más paquetes hasta que se confirme la recepción
+            #ventana de 1, no recibe más paquetes hasta que se confirme la recepción
             self.receiveConfirmation = False
             print(f"Recibiendo frame: Tipo: {frame.frame_type} - Número de secuencia: {frame.sequence_number} - Número de ACK: {frame.ack_number} - Datos: {frame.packet_data}")
             if frame.frame_type == "ack" and frame.ack_number == self.sequence_number:
-                # Quita el evento de timeout de la cola de eventos
+                #quita el evento de timeout de la cola de eventos
                 self.cancel_event()
                 # Se recibió un ACK válido, se confirma la recepción
                 frame2 = Frame("data", self.sequence_number - 1, 0, self.packet)

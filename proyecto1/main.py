@@ -6,6 +6,9 @@ from capas.physicallayer import PhysicalLayer
 from protocolos.utopiaprotocol import UtopiaProtocol
 from protocolos.stopandwaitprotocol import StopAndWait
 from protocolos.parprotocol import ParProtocol
+from protocolos.slidingwindowprotocol import SlidingWindowProtocol
+from protocolos.gobacknprotocol import GoBackNProtocol
+from protocolos.selectiverepeatprotocol import SelectiveRepeatProtocol
 from simulador.simulator import Simulator
 
 # Mantén un registro de todos los hilos de la simulación
@@ -100,12 +103,29 @@ def menu():
             break
         elif opcion == "4":
             # Sliding Window de 1 bit
+            link_protocol_A = SlidingWindowProtocol('A')
+            link_protocol_B = SlidingWindowProtocol('B')
+            link_protocol_A.set_physical_layer(physical_layer_A)
+            link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "5":
             # Go-Back-N
+            ventana = input("Ingrese el tamaño de la ventana de envío: ")
+            limite = input("Ingrese la cantidad de paquetes permitidos: ")
+            link_protocol_A = GoBackNProtocol('A', limite, ventana)
+            link_protocol_B = GoBackNProtocol('B', limite, ventana)
+            link_protocol_A.set_physical_layer(physical_layer_A)
+            link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "6":
             # Selective-Repeat
+            ventana_envio = input("Ingrese el tamaño de la ventana de envío: ")
+            ventana_recepcion = input("Ingrese el tamaño de la ventana de recepción: ")
+            limite = input("Ingrese la cantidad de paquetes permitidos: ")
+            link_protocol_A = SelectiveRepeatProtocol('A', limite, ventana_envio, ventana_recepcion)
+            link_protocol_B = SelectiveRepeatProtocol('B', limite, ventana_envio, ventana_recepcion)
+            link_protocol_A.set_physical_layer(physical_layer_A)
+            link_protocol_B.set_physical_layer(physical_layer_B)
             break
         else:
             print("\nOpción inválida\n")
