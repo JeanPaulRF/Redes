@@ -110,8 +110,8 @@ def menu():
             break
         elif opcion == "5":
             # Go-Back-N
-            ventana = input("Ingrese el tamaño de la ventana de envío: ")
-            limite = input("Ingrese la cantidad de paquetes permitidos: ")
+            ventana = int(input("Ingrese el tamaño de la ventana de envío: "))
+            limite = int(input("Ingrese la cantidad de paquetes permitidos: "))
             link_protocol_A = GoBackNProtocol('A', limite, ventana)
             link_protocol_B = GoBackNProtocol('B', limite, ventana)
             link_protocol_A.set_physical_layer(physical_layer_A)
@@ -119,9 +119,9 @@ def menu():
             break
         elif opcion == "6":
             # Selective-Repeat
-            ventana_envio = input("Ingrese el tamaño de la ventana de envío: ")
-            ventana_recepcion = input("Ingrese el tamaño de la ventana de recepción: ")
-            limite = input("Ingrese la cantidad de paquetes permitidos: ")
+            ventana_envio = int(input("Ingrese el tamaño de la ventana de envío: "))
+            ventana_recepcion = int(input("Ingrese el tamaño de la ventana de recepción: "))
+            limite = int(input("Ingrese la cantidad de paquetes permitidos: "))
             link_protocol_A = SelectiveRepeatProtocol('A', limite, ventana_envio, ventana_recepcion)
             link_protocol_B = SelectiveRepeatProtocol('B', limite, ventana_envio, ventana_recepcion)
             link_protocol_A.set_physical_layer(physical_layer_A)
