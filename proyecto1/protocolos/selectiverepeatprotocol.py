@@ -14,13 +14,13 @@ class SelectiveRepeatProtocol:
         self.physical_layer = None  # Asigna la capa física
         self.events = Queue()  # Cola de eventos
         # No hay paquetes ilimitados
-        self.packageLimit = packageLimit
+        self.packageLimit = int(packageLimit)
         self.amountPackages = 0
         # Ventana de tamaño N para el emisor
-        self.senderWindowSize = senderWindowSize
+        self.senderWindowSize = int(senderWindowSize)
         self.amountSenderPackages = 0
         # Ventana de tamaño N para el receptor
-        self.receiverWindowSize = receiverWindowSize
+        self.receiverWindowSize = int(receiverWindowSize)
         self.amountReceiverPackages = 0
 
     def set_physical_layer(self, physical_layer):

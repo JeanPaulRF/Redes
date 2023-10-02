@@ -29,8 +29,8 @@ link_protocol_A = None
 link_protocol_B = None
 
 # Crea instancias de capa física
-physical_layer_A = PhysicalLayer(error_rate=0.2)
-physical_layer_B = PhysicalLayer(error_rate=0.2)
+physical_layer_A = PhysicalLayer(error_rate=0)
+physical_layer_B = PhysicalLayer(error_rate=0)
 
 # Conecta los componentes entre sí
 physical_layer_A.set_receptor(physical_layer_B)
@@ -96,34 +96,46 @@ def menu():
             break
         elif opcion == "3":
             # PAR
+            error = input("Ingrese la probabilidad de error: ")
             link_protocol_A = ParProtocol('A')
             link_protocol_B = ParProtocol('B')
+            physical_layer_A.error_rate = float(error)
+            physical_layer_B.error_rate = float(error)
             link_protocol_A.set_physical_layer(physical_layer_A)
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "4":
             # Sliding Window de 1 bit
+            error = input("Ingrese la probabilidad de error: ")
             link_protocol_A = SlidingWindowProtocol('A')
             link_protocol_B = SlidingWindowProtocol('B')
+            physical_layer_A.error_rate = float(error)
+            physical_layer_B.error_rate = float(error)
             link_protocol_A.set_physical_layer(physical_layer_A)
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "5":
             # Go-Back-N
-            ventana = int(input("Ingrese el tamaño de la ventana de envío: "))
-            limite = int(input("Ingrese la cantidad de paquetes permitidos: "))
+            error = input("Ingrese la probabilidad de error: ")
+            ventana = input("Ingrese el tamaño de la ventana de envío: ")
+            limite = input("Ingrese la cantidad de paquetes permitidos: ")
             link_protocol_A = GoBackNProtocol('A', limite, ventana)
             link_protocol_B = GoBackNProtocol('B', limite, ventana)
+            physical_layer_A.error_rate = float(error)
+            physical_layer_B.error_rate = float(error)
             link_protocol_A.set_physical_layer(physical_layer_A)
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "6":
             # Selective-Repeat
-            ventana_envio = int(input("Ingrese el tamaño de la ventana de envío: "))
-            ventana_recepcion = int(input("Ingrese el tamaño de la ventana de recepción: "))
-            limite = int(input("Ingrese la cantidad de paquetes permitidos: "))
+            error = input("Ingrese la probabilidad de error: ")
+            ventana_envio = input("Ingrese el tamaño de la ventana de envío: ")
+            ventana_recepcion = input("Ingrese el tamaño de la ventana de recepción: ")
+            limite = input("Ingrese la cantidad de paquetes permitidos: ")
             link_protocol_A = SelectiveRepeatProtocol('A', limite, ventana_envio, ventana_recepcion)
             link_protocol_B = SelectiveRepeatProtocol('B', limite, ventana_envio, ventana_recepcion)
+            physical_layer_A.error_rate = float(error)
+            physical_layer_B.error_rate = float(error)
             link_protocol_A.set_physical_layer(physical_layer_A)
             link_protocol_B.set_physical_layer(physical_layer_B)
             break

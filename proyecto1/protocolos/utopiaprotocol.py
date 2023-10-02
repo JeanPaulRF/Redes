@@ -14,7 +14,6 @@ class UtopiaProtocol:
 
     def set_physical_layer(self, physical_layer):
         self.physical_layer = physical_layer
-        self.physical_layer.error_rate = 0
 
     def print_events(self):
         for event in self.events.queue:

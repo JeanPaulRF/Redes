@@ -14,10 +14,10 @@ class GoBackNProtocol:
         self.physical_layer = None  # Asigna la capa física
         self.events = Queue()  # Cola de eventos
         # No hay paquetes ilimitados
-        self.packageLimit = packageLimit
+        self.packageLimit = int(packageLimit)
         self.amountPackages = 0
         # Ventana de tamaño N para el emisor
-        self.senderWindowSize = senderWindowSize
+        self.senderWindowSize = int(senderWindowSize)
         self.amountSenderPackages = 0
         self.receiveConfirmation = True  # Variable para confirmar que los paquetes de recepcion esten bien
 
