@@ -11,31 +11,28 @@ from protocolos.gobacknprotocol import GoBackNProtocol
 from protocolos.selectiverepeatprotocol import SelectiveRepeatProtocol
 from simulador.simulator import Simulator
 
-# Mantén un registro de todos los hilos de la simulación
+#registro de todos los hilos de la simulación
 simulator_threads = []
+pausa_simulacion = False#variable de control para pausar la simulación
+finalizar_simulacion = False#variable de control para finalizar la simulación
 
-# Variable de control para pausar la simulación
-pausa_simulacion = False
-
-# Variable de control para finalizar la simulación
-finalizar_simulacion = False
-
-# Crea instancias de capa de red
+#se crea instancias de capa de red
 network_layer_A = NetworkLayer()
 network_layer_B = NetworkLayer()
 
-# Crea los protocolos de enlace
+#se crea los protocolos de enlace
 link_protocol_A = None
 link_protocol_B = None
 
-# Crea instancias de capa física
+#se crea instancias de capa física
 physical_layer_A = PhysicalLayer(error_rate=0)
 physical_layer_B = PhysicalLayer(error_rate=0)
 
-# Conecta los componentes entre sí
+#se concectan los componentes entre sí
 physical_layer_A.set_receptor(physical_layer_B)
 physical_layer_B.set_receptor(physical_layer_A)
 
+#logica para pausar, reanudar y terminuar la simulación
 def menu_pausa(simulator_A, simulator_B):
     global pausa_simulacion, finalizar_simulacion
     while not finalizar_simulacion:
@@ -59,7 +56,7 @@ def menu_pausa(simulator_A, simulator_B):
             break
         else:
             print("\nOpción no válida\n")
-
+#menu para seleccionar el protocolo que se quiere simular
 def menu():
     global link_protocol_A, link_protocol_B
     while True:
@@ -74,28 +71,28 @@ def menu():
 
         opcion = input("\nIngrese una opción: ")
         if opcion == "0":
-            # Utopia
+            #link
             link_protocol_A = LinkProtocol('A')
             link_protocol_B = LinkProtocol('B')
             link_protocol_A.set_physical_layer(physical_layer_A)
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "1":
-            # Utopia
+            #Utopia
             link_protocol_A = UtopiaProtocol('A')
             link_protocol_B = UtopiaProtocol('B')
             link_protocol_A.set_physical_layer(physical_layer_A)
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "2":
-            # Stop and Wait
+            #Stop and Wait
             link_protocol_A = StopAndWait('A')
             link_protocol_B = StopAndWait('B')
             link_protocol_A.set_physical_layer(physical_layer_A)
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "3":
-            # PAR
+            #PAR
             error = input("Ingrese la probabilidad de error: ")
             link_protocol_A = ParProtocol('A')
             link_protocol_B = ParProtocol('B')
@@ -105,7 +102,7 @@ def menu():
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "4":
-            # Sliding Window de 1 bit
+            #Sliding Window de 1 bit
             error = input("Ingrese la probabilidad de error: ")
             link_protocol_A = SlidingWindowProtocol('A')
             link_protocol_B = SlidingWindowProtocol('B')
@@ -115,7 +112,7 @@ def menu():
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "5":
-            # Go-Back-N
+            #Go-Back-N
             error = input("Ingrese la probabilidad de error: ")
             ventana = input("Ingrese el tamaño de la ventana de envío: ")
             limite = input("Ingrese la cantidad de paquetes permitidos: ")
@@ -127,7 +124,7 @@ def menu():
             link_protocol_B.set_physical_layer(physical_layer_B)
             break
         elif opcion == "6":
-            # Selective-Repeat
+            #Selective-Repeat
             error = input("Ingrese la probabilidad de error: ")
             ventana_envio = input("Ingrese el tamaño de la ventana de envío: ")
             ventana_recepcion = input("Ingrese el tamaño de la ventana de recepción: ")
@@ -149,15 +146,15 @@ def simulation():
     print("\nSimulación Iniciada\n")
     time.sleep(1)
 
-    # Inicializa el simulador con los componentes para A y B
+    #se inicializa el simulador con los componentes para A y B
     simulator_A = Simulator(link_protocol_A, network_layer_A, physical_layer_A)
     simulator_B = Simulator(link_protocol_B, network_layer_B, physical_layer_B)
 
-    # Crea y arranca un hilo para el control de pausa
+    #crea y arranca un hilo para el control de pausa
     pausa_thread = threading.Thread(target=menu_pausa, args=(simulator_A, simulator_B))
     pausa_thread.start()
 
-    # Crear los threads e iniciarlos
+    #Crear los threads e iniciarlos
     thread_A = threading.Thread(target=simulator_A.run_simulation)
     thread_B = threading.Thread(target=simulator_B.run_simulation)
     simulator_threads.append(thread_A)
@@ -165,7 +162,7 @@ def simulation():
     thread_A.start()
     thread_B.start()
 
-    # Espera a que se finalice la simulación
+    #espera a que se finalice la simulación
     while not finalizar_simulacion:
         pass
     
@@ -173,5 +170,5 @@ def simulation():
             thread.join()
 
 if __name__ == "__main__":
-    # Inicializa la simulación
+    #inicializa la simulación
     simulation()

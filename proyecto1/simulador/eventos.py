@@ -16,8 +16,8 @@ class ChecksumErrorEvent(Event):
 
 class TimeoutEvent:
     def __init__(self, duration):
-        self.duration = duration  # Duración en segundos
-        self.start_time = time.time()  # Tiempo de inicio
+        self.duration = duration#duración en segundos
+        self.start_time = time.time()#Tiempo de inicio
     
     def is_expired(self):
         current_time = time.time()
